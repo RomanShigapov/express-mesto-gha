@@ -24,6 +24,8 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.listen(PORT, () => {
-  console.log('Serv started');
+app.all('/*', (req, res) => {
+  res.status(404).send({ message: 'Некорректный URL запроса.' });
 });
+
+app.listen(PORT);
