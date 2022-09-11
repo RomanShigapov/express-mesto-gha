@@ -5,9 +5,18 @@ const createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => {
-      res.send(user);
+      res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      });
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Запрос содержит неккоректные данные, создание пользователя невозможно.' });
+        return;
+      }
       res.status(500).send({ message: err.message });
     });
 };
@@ -29,7 +38,12 @@ const getUserById = (req, res) => {
         res.status(404).send({ message: `Пользователь с запрашиваемым _id ='${userId}' не найден.` });
         return;
       }
-      res.send(user);
+      res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -50,15 +64,16 @@ const updateUser = (req, res) => {
         res.status(404).send({ message: `Не найден пользователь, с запрашиваемым _id ='${userId}', обновление профиля невозможно.` });
         return;
       }
-      res.send({ data: user });
+      res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(400).send({ message: 'Запрос содержит неккоректные данные, обновление профиля невозможно.' });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: `Запрос содержит некорректное _id ='${userId}' пользователя, обновление профиля невозможно.` });
         return;
       }
       res.status(500).send({ message: err.message });
@@ -75,15 +90,16 @@ const updateUserAvatar = (req, res) => {
         res.status(404).send({ message: `Не найден пользователь, с запрашиваемым _id ='${userId}', обновление аватара невозможно.` });
         return;
       }
-      res.send({ data: user });
+      res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(400).send({ message: 'Запрос содержит неккоректные данные, обновление аватара невозможно' });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: `Запрос содержит некорректное _id ='${userId}' пользователя, обновление аватара невозможно.` });
         return;
       }
       res.status(500).send({ message: err.message });

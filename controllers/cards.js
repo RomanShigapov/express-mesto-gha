@@ -45,8 +45,60 @@ const deleteCard = (req, res) => {
     });
 };
 
+const likeCard = (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
+  Card.findByIdAndUpdate(
+    cardId,
+    { $addToSet: { likes: userId } },
+    { new: true },
+  )
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: `Не найдена карточка места с запрашиваемым _id ='${cardId}', простановка лайка невозможна.` });
+        return;
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Запрос содержит неккоректные данные' });
+        return;
+      }
+      res.status(500).send({ message: err.message });
+    });
+};
+
+const dislikeCard = (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
+  Card.findByIdAndUpdate(
+    cardId,
+    { $pull: { likes: userId } },
+    { new: true },
+  )
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: `Не найдена карточка места с запрашиваемым _id ='${cardId}', простановка лайка невозможна.` });
+        return;
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Запрос содержит неккоректные данные' });
+        return;
+      }
+      res.status(500).send({ message: err.message });
+    });
+};
+
 module.exports = {
   createCard,
   getCards,
   deleteCard,
+  likeCard,
+  dislikeCard,
 };
