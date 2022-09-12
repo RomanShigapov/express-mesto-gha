@@ -46,12 +46,12 @@ const getUserById = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(Error400.status).send({ message: Error400.message });
+      if (err.message === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
         return;
       }
-      if (err.name === 'NotFound') {
-        res.status(Error404.status).send({ message: Error404.message });
+      if (err.name === 'CastError') {
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
       res.status(Error500.status).send({ message: Error500.message });
@@ -75,12 +75,12 @@ const updateUser = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(Error400.status).send({ message: Error400.message });
+      if (err.message === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
         return;
       }
-      if (err.name === 'NotFound') {
-        res.status(Error404.status).send({ message: Error404.message });
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
       res.status(Error500.status).send({ message: Error500.message });
@@ -104,12 +104,12 @@ const updateUserAvatar = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(Error400.status).send({ message: Error400.message });
+      if (err.message === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
         return;
       }
-      if (err.name === 'NotFound') {
-        res.status(Error404.status).send({ message: Error404.message });
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
       res.status(Error500.status).send({ message: Error500.message });

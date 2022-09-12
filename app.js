@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const { Error404 } = require('./utils/errors');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -28,7 +29,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.all('/*', (req, res) => {
-  res.status(404).send({ message: 'Некорректный URL запроса.' });
+  res.status(Error404.status).send({ message: Error404.message });
 });
 
 app.listen(PORT);
