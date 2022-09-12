@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const { Error400, Error404, Error500 } = require('../utils/errors');
 
 const createCard = (req, res) => {
   const owner = req.user._id;
@@ -10,18 +11,18 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
+    .catch(() => {
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
@@ -29,19 +30,22 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
     .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: `Не найдена карточка места с запрашиваемым _id ='${cardId}', удаление невозможно.` });
-        return;
-      }
       res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
+        return;
+      }
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
@@ -54,19 +58,22 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: userId } },
     { new: true },
   )
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
     .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: `Не найдена карточка места с запрашиваемым _id ='${cardId}', простановка лайка невозможна.` });
-        return;
-      }
       res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
+        return;
+      }
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
@@ -79,19 +86,22 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: userId } },
     { new: true },
   )
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
     .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: `Не найдена карточка места с запрашиваемым _id ='${cardId}', простановка лайка невозможна.` });
-        return;
-      }
       res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
+        return;
+      }
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 

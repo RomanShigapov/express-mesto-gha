@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const { Error400, Error404, Error500 } = require('../utils/errors');
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
@@ -14,18 +15,18 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные, создание пользователя невозможно.' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
+    .catch(() => {
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
@@ -33,11 +34,10 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
     .then((user) => {
-      if (!user) {
-        res.status(404).send({ message: `Пользователь с запрашиваемым _id ='${userId}' не найден.` });
-        return;
-      }
       res.send({
         _id: user._id,
         name: user.name,
@@ -47,10 +47,14 @@ const getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные.' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
+        return;
+      }
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
@@ -59,11 +63,10 @@ const updateUser = (req, res) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
     .then((user) => {
-      if (!user) {
-        res.status(404).send({ message: `Не найден пользователь, с запрашиваемым _id ='${userId}', обновление профиля невозможно.` });
-        return;
-      }
       res.send({
         _id: user._id,
         name: user.name,
@@ -73,10 +76,14 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные, обновление профиля невозможно.' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
+        return;
+      }
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
@@ -85,11 +92,10 @@ const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
     .then((user) => {
-      if (!user) {
-        res.status(404).send({ message: `Не найден пользователь, с запрашиваемым _id ='${userId}', обновление аватара невозможно.` });
-        return;
-      }
       res.send({
         _id: user._id,
         name: user.name,
@@ -99,10 +105,14 @@ const updateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(400).send({ message: 'Запрос содержит неккоректные данные, обновление аватара невозможно' });
+        res.status(Error400.status).send({ message: Error400.message });
         return;
       }
-      res.status(500).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(Error404.status).send({ message: Error404.message });
+        return;
+      }
+      res.status(Error500.status).send({ message: Error500.message });
     });
 };
 
