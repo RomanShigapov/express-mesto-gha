@@ -1,24 +1,39 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { Error400, Error404, Error500 } = require('../utils/errors');
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => {
-      res.send({
-        _id: user._id,
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-      });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(Error400.status).send({ message: Error400.message });
-        return;
-      }
-      res.status(Error500.status).send({ message: Error500.message });
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      })
+        .then((user) => res.send({
+          _id: user._id,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            res.status(Error400.status).send({ message: Error400.message });
+            return;
+          }
+          res.status(Error500.status).send({ message: Error500.message });
+        });
     });
 };
 
